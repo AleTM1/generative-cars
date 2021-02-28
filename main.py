@@ -31,7 +31,7 @@ def selection(lenght_array):
     quality = 1.0
     while len(population_indexes) < int(round(0.1 * len(lenght_array))):
         population_indexes = []
-        quality -= 0.1
+        quality -= 0.05
         k = 0
         for le in lenght_array:
             if le > m * quality:
@@ -45,7 +45,7 @@ def crossover(best, dim, num_act):
     n = len(best)
     while len(population) < dim:
         new_car = copy.deepcopy(random.choice(best))
-        new_car.actions_generator(int(new_car.tick * 0.5), num_act)
+        new_car.actions_generator(int(new_car.tick * 0.6), num_act)
         population.append(new_car)
     for i in range(n):
         population[i].actions_generator(int(population[i].tick * 0.9), num_act)
@@ -57,13 +57,17 @@ def main_loop(actions_num, dim):
     epoch = 0
     while True:
         lenght_array, waypoints_array = fitness_calculation(population)
-        if max(lenght_array) > 1000:
-            display([waypoints_array[lenght_array.index(max(lenght_array))]], line_in, line_out, epoch)
-            return population[lenght_array.index(max(lenght_array))]
+        if max(lenght_array) > 700:
+            index = 0
+            for w in waypoints_array:
+                if np.linalg.norm(np.array((0, 0)) - w[-1]) < 5:
+                    display([waypoints_array[index]], line_in, line_out, str(epoch) + "_COMPLETE")
+                    return 0
+                index += 1
         selection_arr = selection(lenght_array)
         best = [population[i] for i in selection_arr]
         if epoch % 15 == 0:
-            display(waypoints_array, line_in, line_out, epoch)
+            display(waypoints_array, line_in, line_out, str(epoch))
         population = copy.deepcopy(crossover(best, dim, actions_num - 1))
         epoch += 1
 

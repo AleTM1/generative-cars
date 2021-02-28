@@ -60,17 +60,17 @@ class Car:
         self.pos = [0, 0]
         self.angle = 0
         self.tick = 0
-        waypoints = [self.pos]
+        waypoints = [[0, 0]]
         tick = 0
         lenght = 0
         for a in self.actions:
             self.update_position(a)
             point = Point(self.pos[0], self.pos[1])
-            waypoints.append(copy.deepcopy(self.pos))
             if self.line_in.contains(point) or not self.line_out.contains(point):
                 break
             tick += 1
             lenght += a[0]
+            waypoints.append(copy.deepcopy(self.pos))
         self.tick = tick
         return np.array(waypoints), tick, lenght
 

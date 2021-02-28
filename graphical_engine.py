@@ -23,6 +23,6 @@ def display(waypoints_array, line_in, line_out, epoch):
         plot_raceline()
 
     print_frame()
-    plt.title("Epoch number: " + str(epoch))
+    plt.title("Epoch number: " + epoch)
     plt.show()
-
+    fig.savefig('saves/' + epoch + '.png')
