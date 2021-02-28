@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
 
-def display(waypoints_array, line_in, line_out):
+def display(waypoints_array, line_in, line_out, epoch):
     fig = plt.figure(1, figsize=(24, 16))
     ax = fig.add_subplot(111, facecolor='black')
 
@@ -23,5 +23,6 @@ def display(waypoints_array, line_in, line_out):
         plot_raceline()
 
     print_frame()
+    plt.title("Epoch number: " + str(epoch))
     plt.show()
 

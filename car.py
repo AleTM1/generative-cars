@@ -37,20 +37,30 @@ class Car:
         self.line_out = line_out
         self.pos = [0, 0]
         self.angle = 0
+        self.tick = 0
+        self.actions = []
+        self.actions_generator(0, num_act)
 
-        def actions_generator():
-            actions = []
+    def actions_generator(self, start, num_act):
+        if start == 0:
             spd = 0
             ang = 0
-            for i in range(num_act):
-                spd = rndclosestspeed(spd)
-                ang = rndclosestangle(ang)
-                actions.append([spd, ang])
-            return np.array(actions)
-        self.actions = actions_generator()
+            actions = []
+        else:
+            spd = self.actions[start, 0]
+            ang = self.actions[start, 1]
+            actions = list(self.actions[:start])
+        for i in range(start, num_act):
+            spd = rndclosestspeed(spd)
+            ang = rndclosestangle(ang)
+            actions.append([spd, ang])
+        self.actions = np.array(actions)
 
     def execute(self):
-        waypoints = [[0, 0]]
+        self.pos = [0, 0]
+        self.angle = 0
+        self.tick = 0
+        waypoints = [self.pos]
         tick = 0
         lenght = 0
         for a in self.actions:
@@ -61,6 +71,7 @@ class Car:
                 break
             tick += 1
             lenght += a[0]
+        self.tick = tick
         return np.array(waypoints), tick, lenght
 
     def update_position(self, action):
