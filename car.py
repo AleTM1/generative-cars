@@ -6,29 +6,29 @@ import copy
 
 
 def rndclosestspeed(spd):
-    if 4 < spd < 20:
-        if random.randint(0, 1) == 0:
-            spd -= 2
-        else:
-            spd += 2
-    elif spd >= 20:
-        spd -= 2
-    else:
-        spd += 2
-    return spd
+    max_spd = 20
+    min_spd = 4
+    a = -2
+    b = +2
+    if spd < min_spd:
+        a = - (spd - min_spd - 2)
+    elif spd > max_spd:
+        b = max_spd + 2 - spd
+    n_ang = spd + random.random()*(b - a) + a
+    return n_ang
 
 
 def rndclosestangle(ang):
-    if -25 < ang < 25:
-        if random.randint(0, 1) == 0:
-            ang -= 2
-        else:
-            ang += 2
-    elif ang >= 25:
-        ang -= 2
-    else:
-        ang += 2
-    return ang
+    max_ang = 25
+    min_ang = -25
+    a = -2
+    b = +2
+    if ang < min_ang:
+        a = min_ang - 2 - ang
+    elif ang > max_ang:
+        b = max_ang + 2 - ang
+    n_ang = ang + random.random()*(b - a) + a
+    return n_ang
 
 
 class Car:

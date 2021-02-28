@@ -42,7 +42,7 @@ def selection(lenght_array):
 
 def crossover(best, dim, num_act, best_lenghts):
     def heuristic_choice():
-        total = sum(best_lenghts)
+        total = int(sum(best_lenghts))
         v = random.randint(1, total)
         for j in range(len(best_lenghts)):
             if v - best_lenghts[j] <= 0:
