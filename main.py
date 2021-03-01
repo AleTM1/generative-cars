@@ -1,4 +1,4 @@
-from graphical_engine import display
+from graphical_engine import display_running, display_ending
 from car import Car
 import numpy as np
 import shapely.geometry.polygon
@@ -78,20 +78,20 @@ def main_loop(actions_num, dim):
             if max(lenght_array) > 700:
                 t, index, point = termination(lenght_array, waypoints_array)
                 if t:
-                    display([waypoints_array[index][:point]], line_in, line_out, str(epoch) + '_COMPLETE')
-                    return population[index]
+                    best_car = population[index]
+                    display_ending(waypoints_array[index][:point], line_in, line_out, str(epoch), best_car)
+                    return best_car
             selection_arr = selection(lenght_array)
             best = [population[i] for i in selection_arr]
             best_lenghts = [lenght_array[i] for i in selection_arr]
             if epoch % 30 == 0:
-                display(waypoints_array, line_in, line_out, str(epoch))
+                display_running(waypoints_array, line_in, line_out, str(epoch))
             population = copy.deepcopy(crossover(best, dim, actions_num - 1, best_lenghts))
             epoch += 1
 
 
 time = 100
-population_dim = 20
+population_dim = 30
 car = main_loop(time, population_dim)
-print(car.actions)
-print(car.tick)
+print("Car steps: " + str(car.tick))
 print("COMPLETE")
