@@ -5,6 +5,7 @@ import shapely.geometry.polygon
 from shapely.geometry import Polygon
 import random
 import copy
+import threading
 
 
 outer_border = np.array([[-150, 20], [150, 20], [150, -220], [-150, -220], [-150, 20]])
@@ -18,10 +19,16 @@ outer_poly = Polygon(line_out)
 def fitness_calculation(car_array):
     waypoints_array = []
     lenght_array = []
-    for car in car_array:
-        waypoints, tick, lenght = car.execute()
-        lenght_array.append(lenght)
-        waypoints_array.append(waypoints)
+    threads = []
+    for c in car_array:
+        t = threading.Thread(target=c.execute())
+        t.start()
+        threads.append(t)
+    for t in threads:
+        t.join()
+    for c in car_array:
+        lenght_array.append(c.lenght)
+        waypoints_array.append(c.waypoint)
     return lenght_array, waypoints_array
 
 
@@ -91,7 +98,7 @@ def main_loop(actions_num, dim):
 
 
 time = 100
-population_dim = 30
+population_dim = 50
 car = main_loop(time, population_dim)
 print("Car steps: " + str(car.tick))
 print("COMPLETE")

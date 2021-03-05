@@ -38,6 +38,8 @@ class Car:
         self.pos = [0, 0]
         self.angle = 0
         self.tick = 0
+        self.lenght = 0
+        self.waypoint = []
         self.actions = []
         self.actions_generator(0, num_act)
 
@@ -60,19 +62,17 @@ class Car:
         self.pos = [0, 0]
         self.angle = 0
         self.tick = 0
+        self.lenght = 0
         waypoints = [[0, 0]]
-        tick = 0
-        lenght = 0
         for a in self.actions:
             self.update_position(a)
             point = Point(self.pos[0], self.pos[1])
             if self.line_in.contains(point) or not self.line_out.contains(point):
                 break
-            tick += 1
-            lenght += a[0]
+            self.tick += 1
+            self.lenght += a[0]
             waypoints.append(copy.deepcopy(self.pos))
-        self.tick = tick
-        return np.array(waypoints), tick, lenght
+        self.waypoint = np.array(waypoints)
 
     def update_position(self, action):
         self.angle += action[1]
