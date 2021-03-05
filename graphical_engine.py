@@ -27,7 +27,7 @@ def display_running(waypoints_array, line_in, line_out, epoch):
     print_frame()
     plt.title("Epoch number: " + epoch)
     plt.show()
-    fig.savefig('saves/' + epoch + '.png')
+    #fig.savefig('saves/' + epoch + '.png')
 
 
 def display_ending(waypoints, line_in, line_out, epoch, car):
@@ -49,7 +49,7 @@ def display_ending(waypoints, line_in, line_out, epoch, car):
                 y.append(p[1])
                 colors.append(car.actions[i, 0])
                 i += 1
-            col = np.subtract(1, np.array(colors) / max(colors))
+            col = np.subtract(1, np.subtract(np.array(colors), min(colors)) / max(colors))
             ax.scatter(x, y, marker='.', s=50, linewidths=4, c=col, cmap=mcm.RdYlBu, zorder=4)
         plot_border(line_in, "white")
         plot_border(line_out, "white")
@@ -58,4 +58,4 @@ def display_ending(waypoints, line_in, line_out, epoch, car):
     print_frame()
     plt.title("Epoch number: " + epoch + " COMPLETED")
     plt.show()
-    fig.savefig('saves/' + epoch + '_complete.png')
+    #fig.savefig('saves/' + epoch + '_complete.png')

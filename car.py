@@ -5,9 +5,7 @@ from shapely.geometry import Point
 import copy
 
 
-def rndclosestspeed(spd):
-    max_spd = 20
-    min_spd = 4
+def rndclosestspeed(spd, min_spd, max_spd):
     a = -2
     b = +2
     if spd < min_spd:
@@ -18,9 +16,7 @@ def rndclosestspeed(spd):
     return n_ang
 
 
-def rndclosestangle(ang):
-    max_ang = 25
-    min_ang = -25
+def rndclosestangle(ang, min_ang, max_ang):
     a = -2
     b = +2
     if ang < min_ang:
@@ -35,6 +31,10 @@ class Car:
     def __init__(self, num_act, line_in, line_out):
         self.line_in = line_in
         self.line_out = line_out
+        self.max_spd = 20
+        self.min_spd = 4
+        self.max_ang = 25
+        self.min_ang = -25
         self.pos = [0, 0]
         self.angle = 0
         self.tick = 0
@@ -51,8 +51,8 @@ class Car:
             ang = self.actions[start, 1]
             actions = list(self.actions[:start])
         for i in range(start, num_act):
-            spd = rndclosestspeed(spd)
-            ang = rndclosestangle(ang)
+            spd = rndclosestspeed(spd, self.min_spd, self.max_spd)
+            ang = rndclosestangle(ang, self.min_ang, self.max_ang)
             actions.append([spd, ang])
         self.actions = np.array(actions)
 
