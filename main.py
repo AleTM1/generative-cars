@@ -76,7 +76,7 @@ def termination(lenght_array, waypoints_array):
 
 def main_loop(actions_num, dim):
     while True:
-        population = [Car(actions_num - 1, inner_poly, outer_poly, [0, 0]) for _ in range(dim)]
+        population = [Car(actions_num - 1, inner_poly, outer_poly) for _ in range(dim)]
         epoch = 0
         while epoch < 300:
             lenght_array, fitness_array, waypoints_array = fitness_calculation(population)
@@ -96,7 +96,7 @@ def main_loop(actions_num, dim):
 
 
 time = 100
-population_dim = 50
+population_dim = 10
 car = main_loop(time, population_dim)
 print("Car steps: " + str(car.tick))
 print("COMPLETE")
