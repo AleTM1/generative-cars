@@ -65,23 +65,23 @@ def crossover(best, dim, num_act, best_fitness):
     return population
 
 
-def termination(lenght_array, waypoints_array):
+def termination(lenght_array, waypoints_array, end_point):
     for i in range(len(lenght_array)):
         if lenght_array[i] > 700:
             for p in range(int(len(waypoints_array[i])/2), len(waypoints_array[i])):
-                if np.linalg.norm((waypoints_array[i][p]) - np.array([0, 0])) < 4:
+                if np.linalg.norm((waypoints_array[i][p]) - np.array(end_point)) < 4:
                     return True, i, p
     return False, -1, -1
 
 
-def main_loop(actions_num, dim):
+def main_loop(actions_num, dim, sp_array, sa_array):
     while True:
-        population = [Car(actions_num - 1, inner_poly, outer_poly, [0, 0]) for _ in range(dim)]
+        population = [Car(actions_num - 1, inner_poly, outer_poly, sp_array[0], sa_array[0]) for _ in range(dim)]
         epoch = 0
         while epoch < 300:
             lenght_array, fitness_array, waypoints_array = fitness_calculation(population)
             if max(lenght_array) > 700:
-                t, index, point = termination(lenght_array, waypoints_array)
+                t, index, point = termination(lenght_array, waypoints_array, sp_array[0])
                 if t:
                     best_car = population[index]
                     display_ending(waypoints_array[index][:point], line_in, line_out, str(epoch), best_car)
@@ -97,6 +97,8 @@ def main_loop(actions_num, dim):
 
 time = 100
 population_dim = 50
-car = main_loop(time, population_dim)
+starting_point = [[-30, 5]]
+starting_angle = [170]
+car = main_loop(time, population_dim, starting_point, starting_angle)
 print("Car steps: " + str(car.tick))
 print("COMPLETE")
