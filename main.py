@@ -47,12 +47,13 @@ def selection(fitness_array):
 
 def crossover(best, dim, num_act, best_fitness):
     def heuristic_choice():
-        total = int(sum(best_fitness))
+        filter_best = [x for x in best_fitness if x >= 0]
+        total = int(sum(filter_best))
         v = random.randint(1, total)
-        for j in range(len(best_fitness)):
-            if v - best_fitness[j] <= 0:
+        for j in range(len(filter_best)):
+            if v - filter_best[j] <= 0:
                 return best[j]
-            v -= best_fitness[j]
+            v -= filter_best[j]
 
     population = best
     n = len(best)
@@ -102,13 +103,13 @@ def main_loop(actions_num, dim, sp_array, sa_array):
             population = copy.deepcopy(crossover(best, dim, actions_num - 1, best_fitness))
             epoch += 1
         j += 1
-    return solution
+    return solution, epoch
 
 
 time = 100
 population_dim = 50
-starting_point = [[0, 0], [0, -220]]
+starting_point = [[0, 10], [0, -210]]
 starting_angle = [0, 180]
-sol = main_loop(time, population_dim, starting_point, starting_angle)
-display_ending(sol, line_in, line_out)
-print("COMPLETE")
+sol, ep = main_loop(time, population_dim, starting_point, starting_angle)
+display_ending(sol, line_in, line_out, ep)
+print("COMPLETED in " + str(ep) + " generations")

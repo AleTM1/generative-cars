@@ -30,7 +30,7 @@ def display_running(waypoints_array, line_in, line_out, epoch):
     #fig.savefig('saves/' + epoch + '.png')
 
 
-def display_ending(solution, line_in, line_out):
+def display_ending(solution, line_in, line_out, epoch):
     fig = plt.figure(1, figsize=(24, 16))
     ax = fig.add_subplot(111, facecolor='black')
 
@@ -56,6 +56,6 @@ def display_ending(solution, line_in, line_out):
         plot_raceline()
 
     print_frame()
-    plt.title("COMPLETED")
+    plt.title("Total generation needed: " + str(epoch))
     plt.show()
     #fig.savefig('saves/' + epoch + '_complete.png')
