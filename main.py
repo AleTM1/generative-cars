@@ -67,7 +67,7 @@ def crossover(best, dim, num_act, best_fitness):
 
 def termination(lenght_array, waypoints_array, end_point):
     for i in range(len(lenght_array)):
-        if lenght_array[i] > 700:
+        if lenght_array[i] > 300:
             for p in range(int(len(waypoints_array[i])/2), len(waypoints_array[i])):
                 if np.linalg.norm((waypoints_array[i][p]) - np.array(end_point)) < 4:
                     return True, i, p
@@ -75,17 +75,25 @@ def termination(lenght_array, waypoints_array, end_point):
 
 
 def main_loop(actions_num, dim, sp_array, sa_array):
-    while True:
-        population = [Car(actions_num - 1, inner_poly, outer_poly, sp_array[0], sa_array[0]) for _ in range(dim)]
-        epoch = 0
-        while epoch < 300:
+    populations = []
+    for k in range(len(sp_array)):
+        population = [Car(actions_num - 1, inner_poly, outer_poly, sp_array[k], sa_array[k]) for _ in range(dim)]
+        populations.append(population)
+
+    solution = []
+    j = 1
+    epoch = 0
+    for population in populations:
+        if j == len(populations):
+            j = 0
+        while True:
             lenght_array, fitness_array, waypoints_array = fitness_calculation(population)
-            if max(lenght_array) > 700:
-                t, index, point = termination(lenght_array, waypoints_array, sp_array[0])
+            if max(lenght_array) > 300:
+                t, index, point = termination(lenght_array, waypoints_array, sp_array[j])
                 if t:
                     best_car = population[index]
-                    display_ending(waypoints_array[index][:point], line_in, line_out, str(epoch), best_car)
-                    return best_car
+                    solution.append([copy.deepcopy(waypoints_array[index][:point]), best_car])
+                    break
             selection_arr = selection(fitness_array)
             best = [population[i] for i in selection_arr]
             best_fitness = [fitness_array[i] for i in selection_arr]
@@ -93,12 +101,14 @@ def main_loop(actions_num, dim, sp_array, sa_array):
                 display_running(waypoints_array, line_in, line_out, str(epoch))
             population = copy.deepcopy(crossover(best, dim, actions_num - 1, best_fitness))
             epoch += 1
+        j += 1
+    return solution
 
 
 time = 100
 population_dim = 50
-starting_point = [[-30, 5]]
-starting_angle = [170]
-car = main_loop(time, population_dim, starting_point, starting_angle)
-print("Car steps: " + str(car.tick))
+starting_point = [[0, 0], [0, -220]]
+starting_angle = [0, 180]
+sol = main_loop(time, population_dim, starting_point, starting_angle)
+display_ending(sol, line_in, line_out)
 print("COMPLETE")
