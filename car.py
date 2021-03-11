@@ -28,13 +28,15 @@ def rndclosestangle(ang, min_ang, max_ang):
 
 
 class Car:
-    def __init__(self, num_act, line_in, line_out, starting_point, starting_angle):
-        self.line_in = line_in
-        self.line_out = line_out
-        self.max_spd = 20
-        self.min_spd = 4
-        self.max_ang = 25
-        self.min_ang = -25
+
+    max_spd = 20
+    min_spd = 4
+    max_ang = 25
+    min_ang = -25
+
+    def __init__(self, num_act, poly_in, poly_out, starting_point, starting_angle):
+        self.line_in = poly_in
+        self.line_out = poly_out
         self.starting_pos = starting_point
         self.pos = starting_point
         self.starting_ang = starting_angle

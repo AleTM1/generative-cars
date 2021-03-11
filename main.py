@@ -10,7 +10,7 @@ import copy
 
 track = 0
 
-outer_border, inner_border = load_track(track)
+outer_border, inner_border, sectors = load_track(track)
 line_in = shapely.geometry.polygon.LineString(inner_border)
 line_out = shapely.geometry.polygon.LineString(outer_border)
 inner_poly = Polygon(line_in)
@@ -47,7 +47,7 @@ def selection(fitness_array):
 
 def crossover(best, dim, num_act, best_fitness):
     def heuristic_choice():
-        filter_best = [x for x in best_fitness if x >= 0]
+        filter_best = [x for x in best_fitness if x > 0]
         total = int(sum(filter_best))
         v = random.randint(1, total)
         for j in range(len(filter_best)):
@@ -99,7 +99,8 @@ def main_loop(actions_num, dim, sp_array, sa_array):
             best = [population[i] for i in selection_arr]
             best_fitness = [fitness_array[i] for i in selection_arr]
             if epoch % 30 == 0:
-                display_running(waypoints_array, line_in, line_out, str(epoch))
+                display_running(waypoints_array, line_in, line_out, sectors, str(epoch))
+                quit()
             population = copy.deepcopy(crossover(best, dim, actions_num - 1, best_fitness))
             epoch += 1
         j += 1

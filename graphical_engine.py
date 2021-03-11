@@ -3,14 +3,18 @@ import numpy as np
 import matplotlib.cm as mcm
 
 
-def display_running(waypoints_array, line_in, line_out, epoch):
+def display_running(waypoints_array, line_in, line_out, sectors, epoch):
     fig = plt.figure(1, figsize=(24, 16))
     ax = fig.add_subplot(111, facecolor='black')
 
     def print_frame():
         def plot_border(ob, col):
             x, y = ob.xy
-            ax.plot(x, y, color=col, alpha=0.7, linewidth=3, solid_capstyle='round', zorder=2)
+            ax.plot(x, y, color=col, alpha=0.9, linewidth=3, solid_capstyle='round', zorder=2)
+
+        def plot_sectors(segments_coords, col):
+            for segment in segments_coords:
+                ax.plot(segment[:2], segment[2:4], color=col, alpha=0.7, linewidth=3, solid_capstyle='round', zorder=2)
 
         def plot_raceline():
             x = []
@@ -20,8 +24,9 @@ def display_running(waypoints_array, line_in, line_out, epoch):
                     x.append(p[0])
                     y.append(p[1])
                 ax.scatter(x, y, c='red', marker='.')
-        plot_border(line_in, "white")
-        plot_border(line_out, "white")
+        plot_border(line_in, "cyan")
+        plot_border(line_out, "cyan")
+        plot_sectors(sectors, "white")
         plot_raceline()
 
     print_frame()
