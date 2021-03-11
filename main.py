@@ -100,7 +100,6 @@ def main_loop(actions_num, dim, sp_array, sa_array):
             best_fitness = [fitness_array[i] for i in selection_arr]
             if epoch % 30 == 0:
                 display_running(waypoints_array, line_in, line_out, sectors, str(epoch))
-                quit()
             population = copy.deepcopy(crossover(best, dim, actions_num - 1, best_fitness))
             epoch += 1
         j += 1

@@ -2,6 +2,7 @@ import numpy as np
 
 # tracks = [ track1, track2, ...]
 # track1 = [[inner_border, outer_border, sector]]
+# sector = [x0, x1, y0, y1]
 
 tracks = [
     [np.array([[-110, -20], [110, -20], [110, -180], [-110, -180], [-110, -20]]),
