@@ -34,12 +34,13 @@ class Car:
     max_ang = 25
     min_ang = -25
 
-    def __init__(self, num_act, poly_in, poly_out, starting_point, starting_angle):
+    def __init__(self, num_act, poly_in, poly_out, starting_point, starting_angle, starting_speed):
         self.line_in = poly_in
         self.line_out = poly_out
         self.starting_pos = starting_point
         self.pos = starting_point
         self.starting_ang = starting_angle
+        self.starting_speed = starting_speed
         self.angle = starting_angle
         self.tick = 0
         self.actions = []
@@ -47,7 +48,7 @@ class Car:
 
     def actions_generator(self, start, num_act):
         if start == 0:
-            spd = 0
+            spd = copy.deepcopy(self.starting_speed)
             ang = 0
             actions = []
         else:
@@ -80,3 +81,10 @@ class Car:
         self.angle += action[1]
         self.pos[0] += action[0] * cos(radians(self.angle))
         self.pos[1] += action[0] * sin(radians(self.angle))
+
+    def get_angle(self, point_num):
+        acc = copy.deepcopy(self.starting_ang)
+        for i in range(point_num):
+            acc += self.actions[i][1]
+        return acc
+
