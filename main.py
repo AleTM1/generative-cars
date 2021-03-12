@@ -76,7 +76,7 @@ def termination(lenght_array, waypoints_array, sector_line):
                 dist2 = point2.distance(line)
                 intra_dist = point1.distance(point2)
                 if point2.distance(line) < 6 and abs(dist2 - dist1)/intra_dist > 0.85 and\
-                        3 * outer_poly.exterior.distance(point2) < inner_poly.exterior.distance(point2):
+                        0.7 < outer_poly.exterior.distance(point2)/inner_poly.exterior.distance(point2) < 1.7:
                     return True, i, p
     return False, -1, -1
 
@@ -87,35 +87,42 @@ def main_loop(actions_num, dim, sp, sa, sspd):
 
     population = init_population(sp, sa, sspd)
     solution = []
-    j = 1
     epoch = 0
-    for sector in sectors:
+    j = 0
+    while True:
         k = 0
         while True:
+            epoch += 1
+            sector = sectors[j]
             lenght_array, fitness_array, waypoints_array = fitness_calculation(population)
-            if False or epoch % 3 == 0:
+            if False and epoch % 20 == 0:
                 display_running(waypoints_array, line_in, line_out, sectors, str(epoch))
             if max(lenght_array) > 100:
                 test, index, point = termination(lenght_array, waypoints_array, sector)
                 if test:
                     best_car = population[index]
-                    solution.append([copy.deepcopy(waypoints_array[index][:point]), best_car])
-                    if j < len(sectors):
-                        population = init_population(waypoints_array[index][point], best_car.get_angle(point), best_car.actions[point, 0])
+                    solution.append([copy.deepcopy(waypoints_array[index][:point]), copy.deepcopy(best_car)])
+                    if j == len(sectors) - 1:
+                        return solution, epoch
+                    population = init_population(waypoints_array[index][point], best_car.get_angle(point), best_car.actions[point, 0])
                     break
             selection_arr = selection(fitness_array)
             best = [population[i] for i in selection_arr]
             best_fitness = [fitness_array[i] for i in selection_arr]
-            if k > 0 and k % 10 == 0:
-                for p in population:
-                    p.actions_generator(0, actions_num)
+            if k > 0 and k % 10 == 0 and j > 0:
                 print("RESET")
+                j -= 1
+                if j > 0:
+                    last_wp = solution[j-1][0]
+                    last_best_car = solution[j-1][1]
+                    population = init_population(last_wp[-1], last_best_car.get_angle(len(last_wp) - 1), last_best_car.actions[len(last_wp) - 1, 0])
+                else:
+                    population = init_population(sp, sa, sspd)
+                solution.pop()
             else:
                 population = copy.deepcopy(crossover(best, dim, actions_num - 1, best_fitness))
-            epoch += 1
             k += 1
         j += 1
-    return solution, epoch
 
 
 time = 100
