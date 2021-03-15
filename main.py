@@ -7,7 +7,7 @@ import random
 import copy
 
 
-track = 0
+track = 1
 
 outer_border, inner_border, sectors = load_track(track)
 line_in = shapely.geometry.polygon.LineString(inner_border)
@@ -95,7 +95,7 @@ def main_loop(actions_num, dim, sp, sa, sspd):
             epoch += 1
             sector = sectors[j]
             lenght_array, fitness_array, waypoints_array = fitness_calculation(population)
-            if False and epoch % 20 == 0:
+            if False or epoch % 100 == 0:
                 display_running(waypoints_array, line_in, line_out, sectors, str(epoch))
             if max(lenght_array) > 100:
                 test, index, point = termination(lenght_array, waypoints_array, sector)
@@ -109,7 +109,7 @@ def main_loop(actions_num, dim, sp, sa, sspd):
             selection_arr = selection(fitness_array)
             best = [population[i] for i in selection_arr]
             best_fitness = [fitness_array[i] for i in selection_arr]
-            if k > 0 and k % 10 == 0 and j > 0:
+            if k > 0 and k % 20 == 0 and j > 0:
                 print("RESET")
                 j -= 1
                 if j > 0:
@@ -127,7 +127,7 @@ def main_loop(actions_num, dim, sp, sa, sspd):
 
 time = 100
 population_dim = 50
-starting_point = [0, 0]
+starting_point = [60, 10]
 starting_angle = 0
 sol, ep = main_loop(time, population_dim, starting_point, starting_angle, 0)
 display_ending(sol, line_in, line_out, sectors, ep)
