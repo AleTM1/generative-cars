@@ -9,16 +9,16 @@ import copy
 
 """
 ALLOWED TRACKS:
-- Mexico_track (x100, 180°)
-- Bowtie_track (x100, 330°)
-- canada_race (x100, 240°)
-- Canada_Training (x100, 160°)
-- London_Loop_Train (x100, 0°)
-- New_York_Track (x100, 5°)
-- Oval_Track (x100, 0°)
+- Mexico_track (x100)
+- Bowtie_track (x100)
+- canada_race (x100)
+- Canada_Training (x100)
+- London_Loop_Train (x100)
+- New_York_Track (x100)
+- Oval_Track (x100)
 """
 
-track = "Oval_Track"
+track = "Canada_Training"
 
 outer_border, inner_border, sectors, starting_angle = load_track(track)
 line_in = shapely.geometry.polygon.LineString(inner_border)
@@ -90,8 +90,8 @@ def termination(waypoints_array, sector_line):
 
 
 def main_loop(actions_num, dim, sp, sa, sspd):
-    def init_population(start_p, ang, start_sp):
-        return [Car(actions_num - 1, inner_poly, outer_poly, start_p, ang, start_sp) for _ in range(dim)]
+    def init_population(start_p, ang, start_spd):
+        return [Car(actions_num - 1, inner_poly, outer_poly, start_p, ang, start_spd) for _ in range(dim)]
 
     population = init_population(sp, sa, sspd)
     solution = []
@@ -134,7 +134,7 @@ def main_loop(actions_num, dim, sp, sa, sspd):
         j += 1
 
 
-max_actions = 100
+max_actions = 80
 population_dim = 30
 starting_point = [(sectors[-1][0] + sectors[-1][1])/2, (sectors[-1][2] + sectors[-1][3])/2]
 sol, ep = main_loop(max_actions, population_dim, starting_point, starting_angle, 0)
