@@ -6,8 +6,8 @@ import copy
 
 
 def rndclosestspeed(spd, min_spd, max_spd):
-    a = -2
-    b = +2
+    a = -3
+    b = +3
     if spd < min_spd:
         a = - (spd - min_spd - 2)
     elif spd > max_spd:
@@ -29,10 +29,10 @@ def rndclosestangle(ang, min_ang, max_ang):
 
 class Car:
 
-    max_spd = 20
-    min_spd = 4
-    max_ang = 25
-    min_ang = -25
+    max_spd = 15
+    min_spd = 2
+    max_ang = 35
+    min_ang = -35
 
     def __init__(self, num_act, poly_in, poly_out, starting_point, starting_angle, starting_speed):
         self.line_in = poly_in

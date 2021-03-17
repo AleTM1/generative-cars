@@ -7,7 +7,7 @@ import random
 import copy
 
 
-track = 1
+track = 2
 
 outer_border, inner_border, sectors = load_track(track)
 line_in = shapely.geometry.polygon.LineString(inner_border)
@@ -75,9 +75,9 @@ def termination(lenght_array, waypoints_array, sector_line):
                 dist1 = point1.distance(line)
                 dist2 = point2.distance(line)
                 intra_dist = point1.distance(point2)
-                if point2.distance(line) < 6 and abs(dist2 - dist1)/intra_dist > 0.85 and\
-                        0.7 < outer_poly.exterior.distance(point2)/inner_poly.exterior.distance(point2) < 1.7:
+                if point2.distance(line) < 6 and abs(dist2 - dist1)/intra_dist > 0.85:
                     return True, i, p
+                break
     return False, -1, -1
 
 
@@ -95,13 +95,15 @@ def main_loop(actions_num, dim, sp, sa, sspd):
             epoch += 1
             sector = sectors[j]
             lenght_array, fitness_array, waypoints_array = fitness_calculation(population)
-            if False or epoch % 100 == 0:
+            if False and epoch % 50 == 1:
                 display_running(waypoints_array, line_in, line_out, sectors, str(epoch))
+                quit()
             if max(lenght_array) > 100:
                 test, index, point = termination(lenght_array, waypoints_array, sector)
                 if test:
                     best_car = population[index]
                     solution.append([copy.deepcopy(waypoints_array[index][:point]), copy.deepcopy(best_car)])
+                    display_ending(solution, line_in, line_out, sectors, epoch)
                     if j == len(sectors) - 1:
                         return solution, epoch
                     population = init_population(waypoints_array[index][point], best_car.get_angle(point), best_car.actions[point, 0])
@@ -126,8 +128,8 @@ def main_loop(actions_num, dim, sp, sa, sspd):
 
 
 time = 100
-population_dim = 50
-starting_point = [60, 10]
+population_dim = 30
+starting_point = [0, 0]
 starting_angle = 0
 sol, ep = main_loop(time, population_dim, starting_point, starting_angle, 0)
 display_ending(sol, line_in, line_out, sectors, ep)
