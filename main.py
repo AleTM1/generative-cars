@@ -7,9 +7,20 @@ import random
 import copy
 
 
-track = 2
+"""
+ALLOWED TRACKS:
+- Mexico_track (x100, 180°)
+- Bowtie_track (x100, 330°)
+- canada_race (x100, 240°)
+- Canada_Training (x100, 160°)
+- London_Loop_Train (x100, 0°)
+- New_York_Track (x100, 5°)
+- Oval_Track (x100, 0°)
+"""
 
-outer_border, inner_border, sectors = load_track(track)
+track = "Oval_Track"
+
+outer_border, inner_border, sectors, starting_angle = load_track(track)
 line_in = shapely.geometry.polygon.LineString(inner_border)
 line_out = shapely.geometry.polygon.LineString(outer_border)
 inner_poly = Polygon(line_in)
@@ -17,16 +28,14 @@ outer_poly = Polygon(line_out)
 
 
 def fitness_calculation(car_array):
-    PENALIZATION_PARAM = 4
+    PENALIZATION_PARAM = 6
     waypoints_array = []
-    lenght_array = []
     fitness_array = []
     for c in car_array:
         waypoints, lenght = c.execute()
-        lenght_array.append(lenght)
         fitness_array.append(lenght - PENALIZATION_PARAM * c.tick)
         waypoints_array.append(waypoints)
-    return lenght_array, fitness_array, waypoints_array
+    return fitness_array, waypoints_array
 
 
 def selection(fitness_array):
@@ -65,19 +74,18 @@ def crossover(best, dim, num_act, best_fitness):
     return population
 
 
-def termination(lenght_array, waypoints_array, sector_line):
+def termination(waypoints_array, sector_line):
     line = LineString([Point(sector_line[0], sector_line[2]), Point(sector_line[1], sector_line[3])])
-    for i in range(len(lenght_array)):
-        if lenght_array[i] > 100:
-            for p in range(int(len(waypoints_array[i])/2), len(waypoints_array[i]) - 1):
-                point1 = Point(waypoints_array[i][p-1])
-                point2 = Point(waypoints_array[i][p])
-                dist1 = point1.distance(line)
-                dist2 = point2.distance(line)
-                intra_dist = point1.distance(point2)
-                if point2.distance(line) < 6 and abs(dist2 - dist1)/intra_dist > 0.85:
-                    return True, i, p
-                break
+    for i in range(len(waypoints_array)):
+        for p in range(int(len(waypoints_array[i])/2), len(waypoints_array[i]) - 1):
+            point1 = Point(waypoints_array[i][p-1])
+            point2 = Point(waypoints_array[i][p])
+            dist1 = point1.distance(line)
+            dist2 = point2.distance(line)
+            intra_dist = point1.distance(point2)
+            if point2.distance(line) < 10 and abs(dist2 - dist1)/intra_dist > 0.7:
+                return True, i, p + 1
+            break
     return False, -1, -1
 
 
@@ -94,12 +102,11 @@ def main_loop(actions_num, dim, sp, sa, sspd):
         while True:
             epoch += 1
             sector = sectors[j]
-            lenght_array, fitness_array, waypoints_array = fitness_calculation(population)
-            if False and epoch % 50 == 1:
+            fitness_array, waypoints_array = fitness_calculation(population)
+            if False or epoch == 1:
                 display_running(waypoints_array, line_in, line_out, sectors, str(epoch))
-                quit()
-            if max(lenght_array) > 100:
-                test, index, point = termination(lenght_array, waypoints_array, sector)
+            if max(fitness_array) > 1:
+                test, index, point = termination(waypoints_array, sector)
                 if test:
                     best_car = population[index]
                     solution.append([copy.deepcopy(waypoints_array[index][:point]), copy.deepcopy(best_car)])
@@ -127,10 +134,9 @@ def main_loop(actions_num, dim, sp, sa, sspd):
         j += 1
 
 
-time = 100
+max_actions = 100
 population_dim = 30
-starting_point = [0, 0]
-starting_angle = 0
-sol, ep = main_loop(time, population_dim, starting_point, starting_angle, 0)
+starting_point = [(sectors[-1][0] + sectors[-1][1])/2, (sectors[-1][2] + sectors[-1][3])/2]
+sol, ep = main_loop(max_actions, population_dim, starting_point, starting_angle, 0)
 display_ending(sol, line_in, line_out, sectors, ep)
 print("COMPLETED in " + str(ep) + " generations")

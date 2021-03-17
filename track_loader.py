@@ -1,32 +1,29 @@
 import numpy as np
 
-# tracks = [ track1, track2, ...]
-# track1 = [[inner_border, outer_border, sector]]
+STARTING_ANGLE_LIST = {"Mexico_track": 180, "Bowtie_track": 330, "canada_race": 240, "Canada_Training": 160,
+                       "London_Loop_Train": 0, "New_York_Track": 5, "Oval_Track": 0}
+
+
 # sector = [x0, x1, y0, y1]
+# return np.outer, np.inner, sectors, starting_angle
+def load_track(name):
+    TRACK_NAME = name
+    points = np.load("./tracks/%s.npy" % TRACK_NAME)
+    angle = STARTING_ANGLE_LIST[name]
 
-tracks = [
-    [np.array([[-110, -20], [110, -20], [110, -180], [-110, -180], [-110, -20]]),
-     np.array([[-150, 20], [150, 20], [150, -220], [-150, -220], [-150, 20]]),
-     [[110, 150, -100, -100], [20, 20, -180, -220], [-110, -150, -100, -100], [0, 0, -20, 20]]
-     ],
-    [np.array([[-190, -35], [190, -35], [190, -265], [150, -265], [150, -200], [-150, -200], [-150, -265],
-               [-190, -265], [-190, -35]]),
-     np.array([[-250, 25], [250, 25], [250, -325], [70, -325], [70, -270], [-70, -270], [-70, -325],
-               [-250, -325], [-250, 25]]),
-     [[150, 150, 25, -35], [190, 250, -60, -60], [190, 250, -240, -240], [175, 175, -325, -265], [0, 0, -270, -200],
-      [-175, -175, -325, -265], [-190, -250, -260, -260], [-190, -250, -60, -60], [-150, -150, 25, -35],
-      [0, 0, 25, -35]]
-     ],
-    [np.array([[-190, -35], [190, -35], [190, -265], [150, -265], [150, -110], [-150, -110], [-150, -265],
-               [-190, -265], [-190, -35]]),
-     np.array([[-250, 25], [250, 25], [250, -325], [70, -325], [70, -190], [-70, -190], [-70, -325],
-               [-250, -325], [-250, 25]]),
-     [[150, 150, 25, -35], [190, 250, -60, -60], [190, 250, -240, -240], [175, 175, -325, -265], [70, 150, -240, -240],
-      [60, 60, -110, -190], [-60, -60, -110, -190], [-70, -150, -240, -240], [-175, -175, -325, -265],
-      [-190, -250, -260, -260], [-190, -250, -60, -60], [-150, -150, 25, -35], [0, 0, 25, -35]]
-     ]
-]
+    inner_border = 100 * np.array(points[:, 2:4])
+    outer_border = 100 * np.array(points[:, 4:6])
 
+    sectors = []
+    for i in range(20, len(inner_border), 20):
+        ref_point = np.array([outer_border[i, 0], outer_border[i, 1]])
+        dest_point = np.array([inner_border[i, 0], inner_border[i, 1]])
+        dist = np.linalg.norm(ref_point - dest_point)
+        for j in range(len(inner_border)):
+            d = np.linalg.norm(ref_point - np.array([inner_border[j, 0], inner_border[j, 1]]))
+            if d < dist:
+                dist = d
+                dest_point = np.array([inner_border[j, 0], inner_border[j, 1]])
+        sectors.append([ref_point[0], dest_point[0], ref_point[1], dest_point[1]])
 
-def load_track(index):
-    return tracks[index][1], tracks[index][0], tracks[index][2]
+    return outer_border, inner_border, sectors, angle

@@ -87,4 +87,3 @@ class Car:
         for i in range(point_num):
             acc += self.actions[i][1]
         return acc
-
