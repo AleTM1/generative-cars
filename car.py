@@ -30,7 +30,7 @@ def rndclosestangle(ang, min_ang, max_ang):
 class Car:
 
     max_spd = 15
-    min_spd = 2
+    min_spd = 4
     max_ang = 35
     min_ang = -35
 
@@ -66,16 +66,14 @@ class Car:
         self.angle = copy.deepcopy(self.starting_ang)
         self.tick = 0
         waypoints = [copy.deepcopy(self.starting_pos)]
-        lenght = 0
         for a in self.actions:
             self.update_position(a)
             point = Point(self.pos[0], self.pos[1])
             if self.line_in.contains(point) or not self.line_out.contains(point):
                 break
             self.tick += 1
-            lenght += a[0]
             waypoints.append(copy.deepcopy(self.pos))
-        return np.array(waypoints), lenght
+        return np.array(waypoints)
 
     def update_position(self, action):
         self.angle += action[1]

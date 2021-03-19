@@ -2,14 +2,15 @@ from graphical_engine import display_running, display_ending
 from track_loader import load_track
 from car import Car
 import shapely.geometry.polygon
-from shapely.geometry import Polygon, LineString, Point
+from shapely.geometry import Polygon, Point
 import random
 import copy
+import numpy as np
 
 
 """
 ALLOWED TRACKS:
-- Mexico_track (x100)
+- Mexico_track (x100) # fixed
 - Bowtie_track (x100)
 - canada_race (x100)
 - Canada_Training (x100)
@@ -18,9 +19,9 @@ ALLOWED TRACKS:
 - Oval_Track (x100)
 """
 
-track = "Canada_Training"
+track = "Mexico_track"
 
-outer_border, inner_border, sectors, starting_angle = load_track(track)
+center_line, outer_border, inner_border, starting_angle = load_track(track)
 line_in = shapely.geometry.polygon.LineString(inner_border)
 line_out = shapely.geometry.polygon.LineString(outer_border)
 inner_poly = Polygon(line_in)
@@ -28,13 +29,20 @@ outer_poly = Polygon(line_out)
 
 
 def fitness_calculation(car_array):
-    PENALIZATION_PARAM = 6
+    PROGRESS_BONUS = 15
     waypoints_array = []
     fitness_array = []
     for c in car_array:
-        waypoints, lenght = c.execute()
-        fitness_array.append(lenght - PENALIZATION_PARAM * c.tick)
+        waypoints = c.execute()
         waypoints_array.append(waypoints)
+        best_index = 0
+        dist = 9999999
+        for i in range(len(center_line)):
+            d = np.linalg.norm(waypoints[-1] - center_line[i])
+            if d < dist:
+                dist = d
+                best_index = i
+        fitness_array.append((best_index**2) * PROGRESS_BONUS - c.tick ** 2)
     return fitness_array, waypoints_array
 
 
@@ -42,7 +50,7 @@ def selection(fitness_array):
     population_indexes = []
     m = max(fitness_array)
     quality = 1.0
-    while len(population_indexes) < int(round(0.1 * len(fitness_array))):
+    while len(population_indexes) < 2:# int(round(0.05 * len(fitness_array))):
         population_indexes = []
         quality -= 0.05
         k = 0
@@ -67,25 +75,21 @@ def crossover(best, dim, num_act, best_fitness):
     n = len(best)
     while len(population) < dim:
         new_car = copy.deepcopy(heuristic_choice())
-        new_car.actions_generator(int(new_car.tick * 0.4), num_act)
+        new_car.actions_generator(new_car.tick - 20, num_act)
         population.append(new_car)
     for i in range(n):
-        population[i].actions_generator(int(population[i].tick * 0.9), num_act)
+        population[i].actions_generator(population[i].tick - 5, num_act)
     return population
 
 
-def termination(waypoints_array, sector_line):
-    line = LineString([Point(sector_line[0], sector_line[2]), Point(sector_line[1], sector_line[3])])
+def termination(waypoints_array, ending_point):
+    end_point = Point(ending_point[0], ending_point[1])
     for i in range(len(waypoints_array)):
-        for p in range(int(len(waypoints_array[i])/2), len(waypoints_array[i]) - 1):
-            point1 = Point(waypoints_array[i][p-1])
-            point2 = Point(waypoints_array[i][p])
-            dist1 = point1.distance(line)
-            dist2 = point2.distance(line)
-            intra_dist = point1.distance(point2)
-            if point2.distance(line) < 10 and abs(dist2 - dist1)/intra_dist > 0.7:
-                return True, i, p + 1
-            break
+        if len(waypoints_array[i]) > 50:
+            for p in range(int(len(waypoints_array[i])/2), len(waypoints_array[i]) - 1):
+                point2 = Point(waypoints_array[i][p])
+                if point2.distance(end_point) < 15:
+                    return True, i, p + 1
     return False, -1, -1
 
 
@@ -96,47 +100,27 @@ def main_loop(actions_num, dim, sp, sa, sspd):
     population = init_population(sp, sa, sspd)
     solution = []
     epoch = 0
-    j = 0
     while True:
-        k = 0
-        while True:
-            epoch += 1
-            sector = sectors[j]
-            fitness_array, waypoints_array = fitness_calculation(population)
-            if False or epoch == 1:
-                display_running(waypoints_array, line_in, line_out, sectors, str(epoch))
-            if max(fitness_array) > 1:
-                test, index, point = termination(waypoints_array, sector)
-                if test:
-                    best_car = population[index]
-                    solution.append([copy.deepcopy(waypoints_array[index][:point]), copy.deepcopy(best_car)])
-                    display_ending(solution, line_in, line_out, sectors, epoch)
-                    if j == len(sectors) - 1:
-                        return solution, epoch
-                    population = init_population(waypoints_array[index][point], best_car.get_angle(point), best_car.actions[point, 0])
-                    break
-            selection_arr = selection(fitness_array)
-            best = [population[i] for i in selection_arr]
-            best_fitness = [fitness_array[i] for i in selection_arr]
-            if k > 0 and k % 20 == 0 and j > 0:
-                print("RESET")
-                j -= 1
-                if j > 0:
-                    last_wp = solution[j-1][0]
-                    last_best_car = solution[j-1][1]
-                    population = init_population(last_wp[-1], last_best_car.get_angle(len(last_wp) - 1), last_best_car.actions[len(last_wp) - 1, 0])
-                else:
-                    population = init_population(sp, sa, sspd)
-                solution.pop()
-            else:
-                population = copy.deepcopy(crossover(best, dim, actions_num - 1, best_fitness))
-            k += 1
-        j += 1
+        epoch += 1
+        fitness_array, waypoints_array = fitness_calculation(population)
+        if False or epoch % 10 == 1:
+            display_running(waypoints_array, line_in, line_out, str(epoch))
+        if max(fitness_array) > 1:
+            test, index, point = termination(waypoints_array, sp)
+            if test:
+                best_car = population[index]
+                solution.append([copy.deepcopy(waypoints_array[index][:point]), copy.deepcopy(best_car)])
+                # display_ending(solution, line_in, line_out, sectors, epoch)
+                return solution, epoch
+        selection_arr = selection(fitness_array)
+        best = [population[i] for i in selection_arr]
+        best_fitness = [fitness_array[i] for i in selection_arr]
+        population = copy.deepcopy(crossover(best, dim, actions_num - 1, best_fitness))
 
 
-max_actions = 80
-population_dim = 30
-starting_point = [(sectors[-1][0] + sectors[-1][1])/2, (sectors[-1][2] + sectors[-1][3])/2]
+max_actions = 400
+population_dim = 50
+starting_point = center_line[0]
 sol, ep = main_loop(max_actions, population_dim, starting_point, starting_angle, 0)
-display_ending(sol, line_in, line_out, sectors, ep)
+display_ending(sol, line_in, line_out, ep)
 print("COMPLETED in " + str(ep) + " generations")

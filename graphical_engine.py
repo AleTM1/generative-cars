@@ -16,7 +16,7 @@ def create_unique_raceline(solution):
     return x, y, colors
 
 
-def display_running(waypoints_array, line_in, line_out, sectors, epoch):
+def display_running(waypoints_array, line_in, line_out, epoch):
     fig = plt.figure(1, figsize=(24, 14))
     ax = fig.add_subplot(111, facecolor='black')
 
@@ -39,7 +39,6 @@ def display_running(waypoints_array, line_in, line_out, sectors, epoch):
                 ax.scatter(x, y, c='red', marker='.')
         plot_border(line_in, "cyan")
         plot_border(line_out, "cyan")
-        plot_sectors(sectors, "white")
         plot_raceline()
 
     print_frame()
@@ -48,7 +47,7 @@ def display_running(waypoints_array, line_in, line_out, sectors, epoch):
     # fig.savefig('saves/' + epoch + '.png')
 
 
-def display_ending(solution, line_in, line_out, sectors, epoch):
+def display_ending(solution, line_in, line_out, epoch):
     fig = plt.figure(1, figsize=(24, 16))
     ax = fig.add_subplot(111, facecolor='black')
 
@@ -73,7 +72,6 @@ def display_ending(solution, line_in, line_out, sectors, epoch):
 
         plot_border(line_in, "cyan")
         plot_border(line_out, "cyan")
-        plot_sectors(sectors)
         plot_raceline()
 
     print_frame()
