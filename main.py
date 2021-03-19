@@ -50,7 +50,7 @@ def selection(fitness_array):
     population_indexes = []
     m = max(fitness_array)
     quality = 1.0
-    while len(population_indexes) < 2:# int(round(0.05 * len(fitness_array))):
+    while len(population_indexes) < int(round(0.06 * len(fitness_array))):
         population_indexes = []
         quality -= 0.05
         k = 0
@@ -105,7 +105,7 @@ def main_loop(actions_num, dim, sp, sa, sspd):
         fitness_array, waypoints_array = fitness_calculation(population)
         if False or epoch % 10 == 1:
             display_running(waypoints_array, line_in, line_out, str(epoch))
-        if max(fitness_array) > 1:
+        if max([len(path) for path in waypoints_array]) > 100:
             test, index, point = termination(waypoints_array, sp)
             if test:
                 best_car = population[index]
