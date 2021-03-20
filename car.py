@@ -51,22 +51,27 @@ class Car:
         if start == 0:
             spd = copy.deepcopy(self.starting_speed)
             ang = 0
-            abs_actions = []
             rel_actions = []
         else:
             spd = self.abs_actions[start, 0]
             ang = self.abs_actions[start, 1]
-            abs_actions = list(self.abs_actions[:start])
             rel_actions = list(self.rel_actions[:start])
         for i in range(start, num_act):
             delta_spd = rndclosestspeed(spd, self.min_spd, self.max_spd)
             delta_ang = rndclosestangle(ang, self.min_ang, self.max_ang)
-            rel_actions.append([delta_spd, delta_ang])
             spd += delta_spd
             ang += delta_ang
-            abs_actions.append([spd, ang])
+            rel_actions.append([delta_spd, delta_ang])
+        self.rel_actions = rel_actions
+        self.update_abs_actions()
+
+    def update_abs_actions(self):
+        abs_actions = [[self.starting_speed, 0]]
+        for i in range(0, len(self.rel_actions)):
+            abs_act0 = abs_actions[i][0] + self.rel_actions[i][0]
+            abs_act1 = abs_actions[i][1] + self.rel_actions[i][1]
+            abs_actions.append([abs_act0, abs_act1])
         self.abs_actions = np.array(abs_actions)
-        self.rel_actions = np.array(rel_actions)
 
     def execute(self):
         self.pos = copy.deepcopy(self.starting_pos)

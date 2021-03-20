@@ -119,8 +119,8 @@ def main_loop(actions_num, dim, sp, sa, sspd):
 
 
 max_actions = 400
-population_dim = 50
+population_dim = 30
 starting_point = center_line[0]
-sol, ep = main_loop(max_actions, population_dim, starting_point, starting_angle, 0)
+sol, ep = main_loop(max_actions, population_dim, starting_point, starting_angle, Car.min_spd)
 display_ending(sol, line_in, line_out, ep)
 print("COMPLETED in " + str(ep) + " generations")
