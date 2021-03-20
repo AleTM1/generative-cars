@@ -75,10 +75,10 @@ def crossover(best, dim, num_act, best_fitness):
     n = len(best)
     while len(population) < dim:
         new_car = copy.deepcopy(heuristic_choice())
-        new_car.actions_generator(new_car.tick - 20, num_act)
+        new_car.actions_generator(new_car.tick - 15, num_act)
         population.append(new_car)
     for i in range(n):
-        population[i].actions_generator(population[i].tick - 5, num_act)
+        population[i].actions_generator(population[i].tick - 7, num_act)
     return population
 
 

@@ -12,8 +12,8 @@ def rndclosestspeed(spd, min_spd, max_spd):
         a = - (spd - min_spd - 2)
     elif spd > max_spd:
         b = max_spd + 2 - spd
-    n_ang = spd + random.random()*(b - a) + a
-    return n_ang
+    n_spd = random.random()*(b - a) + a
+    return n_spd
 
 
 def rndclosestangle(ang, min_ang, max_ang):
@@ -23,7 +23,7 @@ def rndclosestangle(ang, min_ang, max_ang):
         a = min_ang - 2 - ang
     elif ang > max_ang:
         b = max_ang + 2 - ang
-    n_ang = ang + random.random()*(b - a) + a
+    n_ang = random.random()*(b - a) + a
     return n_ang
 
 
@@ -43,30 +43,37 @@ class Car:
         self.starting_speed = starting_speed
         self.angle = starting_angle
         self.tick = 0
-        self.actions = []
+        self.abs_actions = []
+        self.rel_actions = []
         self.actions_generator(0, num_act)
 
     def actions_generator(self, start, num_act):
         if start == 0:
             spd = copy.deepcopy(self.starting_speed)
             ang = 0
-            actions = []
+            abs_actions = []
+            rel_actions = []
         else:
-            spd = self.actions[start, 0]
-            ang = self.actions[start, 1]
-            actions = list(self.actions[:start])
+            spd = self.abs_actions[start, 0]
+            ang = self.abs_actions[start, 1]
+            abs_actions = list(self.abs_actions[:start])
+            rel_actions = list(self.rel_actions[:start])
         for i in range(start, num_act):
-            spd = rndclosestspeed(spd, self.min_spd, self.max_spd)
-            ang = rndclosestangle(ang, self.min_ang, self.max_ang)
-            actions.append([spd, ang])
-        self.actions = np.array(actions)
+            delta_spd = rndclosestspeed(spd, self.min_spd, self.max_spd)
+            delta_ang = rndclosestangle(ang, self.min_ang, self.max_ang)
+            rel_actions.append([delta_spd, delta_ang])
+            spd += delta_spd
+            ang += delta_ang
+            abs_actions.append([spd, ang])
+        self.abs_actions = np.array(abs_actions)
+        self.rel_actions = np.array(rel_actions)
 
     def execute(self):
         self.pos = copy.deepcopy(self.starting_pos)
         self.angle = copy.deepcopy(self.starting_ang)
         self.tick = 0
         waypoints = [copy.deepcopy(self.starting_pos)]
-        for a in self.actions:
+        for a in self.abs_actions:
             self.update_position(a)
             point = Point(self.pos[0], self.pos[1])
             if self.line_in.contains(point) or not self.line_out.contains(point):
@@ -79,9 +86,3 @@ class Car:
         self.angle += action[1]
         self.pos[0] += action[0] * cos(radians(self.angle))
         self.pos[1] += action[0] * sin(radians(self.angle))
-
-    def get_angle(self, point_num):
-        acc = copy.deepcopy(self.starting_ang)
-        for i in range(point_num):
-            acc += self.actions[i][1]
-        return acc

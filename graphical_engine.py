@@ -9,10 +9,12 @@ def create_unique_raceline(solution):
     y = []
     colors = []
     for (waypoints, car) in solution:
+        print(car.rel_actions)
+        print(car.abs_actions)
         for i in range(len(waypoints)):
             x.append(waypoints[i, 0])
             y.append(waypoints[i, 1])
-            colors.append(car.actions[i, 0])
+            colors.append(car.abs_actions[i, 0])
     return x, y, colors
 
 
