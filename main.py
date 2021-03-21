@@ -29,7 +29,7 @@ outer_poly = Polygon(line_out)
 
 
 def fitness_calculation(car_array):
-    PROGRESS_BONUS = 15
+    PROGRESS_BONUS = 10
     waypoints_array = []
     fitness_array = []
     for c in car_array:
@@ -61,24 +61,39 @@ def selection(fitness_array):
     return population_indexes
 
 
-def crossover(best, dim, num_act, best_fitness):
-    def heuristic_choice():
-        filter_best = [x for x in best_fitness if x > 0]
-        total = int(sum(filter_best))
-        v = random.randint(1, total)
-        for j in range(len(filter_best)):
-            if v - filter_best[j] <= 0:
-                return best[j]
-            v -= filter_best[j]
+def crossover(best, dim, best_fitness):
+    def heuristic_choice(num_choices):
+        best_exemplars = []
+        best_values_copy = copy.deepcopy(best_fitness)
+        for _ in range(num_choices):
+            total = int(sum(best_values_copy))
+            v = random.randint(1, total)
+            for j in range(len(best_values_copy)):
+                if v - best_values_copy[j] <= 0:
+                    best_exemplars.append(best[j])
+                    best_values_copy.pop(j)
+                    break
+                v -= best_values_copy[j]
+        if best_exemplars[0].tick < best_exemplars[1].tick:
+            best_exemplars = [best_exemplars[1], best_exemplars[0]]     # parent 0 is better than parent 1
+        return best_exemplars
 
     population = best
-    n = len(best)
     while len(population) < dim:
-        new_car = copy.deepcopy(heuristic_choice())
-        new_car.actions_generator(new_car.tick - 15, num_act)
+        parents = heuristic_choice(2)
+        new_car = copy.deepcopy(parents[0])
+        part = int((random.random() * 0.5 + 0.25) * (new_car.tick - 1)) + 1  # crossover between 25% and 75%
+        for i in range(len(new_car.rel_actions)):
+            if i < part:
+                new_car.rel_actions[i] = copy.deepcopy(parents[1].rel_actions[i])
+        new_car.update_abs_actions()
         population.append(new_car)
-    for i in range(n):
-        population[i].actions_generator(population[i].tick - 7, num_act)
+    return population
+
+
+def mutation(population):
+    for p in population:
+        p.mute_rel_actions(p.tick - 10, p.tick + 10)
     return population
 
 
@@ -110,16 +125,16 @@ def main_loop(actions_num, dim, sp, sa, sspd):
             if test:
                 best_car = population[index]
                 solution.append([copy.deepcopy(waypoints_array[index][:point]), copy.deepcopy(best_car)])
-                # display_ending(solution, line_in, line_out, sectors, epoch)
                 return solution, epoch
         selection_arr = selection(fitness_array)
         best = [population[i] for i in selection_arr]
         best_fitness = [fitness_array[i] for i in selection_arr]
-        population = copy.deepcopy(crossover(best, dim, actions_num - 1, best_fitness))
+        population = copy.deepcopy(crossover(best, dim, best_fitness))
+        population = copy.deepcopy(mutation(population))
 
 
 max_actions = 400
-population_dim = 30
+population_dim = 40
 starting_point = center_line[0]
 sol, ep = main_loop(max_actions, population_dim, starting_point, starting_angle, Car.min_spd)
 display_ending(sol, line_in, line_out, ep)

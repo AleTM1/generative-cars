@@ -65,6 +65,18 @@ class Car:
         self.rel_actions = rel_actions
         self.update_abs_actions()
 
+    def mute_rel_actions(self, start, end):
+        spd = self.abs_actions[start - 1, 0]
+        ang = self.abs_actions[start - 1, 1]
+        for i in range(start, end):
+            delta_spd = rndclosestspeed(spd, self.min_spd, self.max_spd)
+            delta_ang = rndclosestangle(ang, self.min_ang, self.max_ang)
+            spd += delta_spd
+            ang += delta_ang
+            self.rel_actions[i][0] = copy.deepcopy(delta_spd)
+            self.rel_actions[i][1] = copy.deepcopy(delta_ang)
+        self.update_abs_actions()
+
     def update_abs_actions(self):
         abs_actions = [[self.starting_speed, 0]]
         for i in range(0, len(self.rel_actions)):

@@ -4,13 +4,11 @@ import matplotlib.cm as mcm
 from car import Car
 
 
-def create_unique_raceline(solution):
+def extract_solution_features(solution):
     x = []
     y = []
     colors = []
     for (waypoints, car) in solution:
-        print(car.rel_actions)
-        print(car.abs_actions)
         for i in range(len(waypoints)):
             x.append(waypoints[i, 0])
             y.append(waypoints[i, 1])
@@ -68,7 +66,7 @@ def display_ending(solution, line_in, line_out, epoch):
                 c += 1
 
         def plot_raceline():
-            x, y, colors = create_unique_raceline(solution)
+            x, y, colors = extract_solution_features(solution)
             col = np.subtract(1, np.subtract(np.array(colors), Car.min_spd) / Car.max_spd)
             ax.scatter(x, y, marker='.', s=50, linewidths=4, c=col, cmap=mcm.RdYlBu, zorder=4)
 
