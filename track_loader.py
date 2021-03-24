@@ -1,18 +1,17 @@
 import numpy as np
 
-
-outer_border_array = [
-    np.array([[-150, 20], [150, 20], [150, -220], [-150, -220], [-150, 20]]),
-    np.array([[-180, 20], [180, 20], [180, -220], [40, -220], [40, -180], [-40, -180],
-              [-40, -220], [-180, -220], [-180, 20]])
-]
-
-inner_border_array = [
-    np.array([[-110, -20], [110, -20], [110, -180], [-110, -180], [-110, -20]]),
-    np.array([[-140, -20], [140, -20], [140, -180], [100, -180], [100, -110], [-100, -110],
-              [-100, -180], [-140, -180], [-140, -20]])
-]
+STARTING_ANGLE_LIST = {"Mexico_track": 180, "Bowtie_track": 30, "canada_race": 90}
 
 
-def load_track(index):
-    return outer_border_array[index], inner_border_array[index]
+# sector = [x0, x1, y0, y1]
+# return np.outer, np.inner, sectors, starting_angle
+def load_track(name):
+    TRACK_NAME = name
+    points = np.load("./tracks/%s.npy" % TRACK_NAME)
+    angle = STARTING_ANGLE_LIST[name]
+
+    center_line = 100 * np.array(points[:, 0:2])
+    inner_border = 100 * np.array(points[:, 2:4])
+    outer_border = 100 * np.array(points[:, 4:6])
+
+    return center_line, outer_border, inner_border, angle
