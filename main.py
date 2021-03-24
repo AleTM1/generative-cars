@@ -10,16 +10,13 @@ import numpy as np
 
 """
 ALLOWED TRACKS:
-- Mexico_track (x100) # fixed
+- Mexico_track (x100) 
 - Bowtie_track (x100)
 - canada_race (x100)
-- Canada_Training (x100)
-- London_Loop_Train (x100)
-- New_York_Track (x100)
-- Oval_Track (x100)
 """
 
-track = "Mexico_track"
+plot_inter_results = False
+track = "Bowtie_track"
 
 center_line, outer_border, inner_border, starting_angle = load_track(track)
 line_in = shapely.geometry.polygon.LineString(inner_border)
@@ -118,7 +115,7 @@ def main_loop(actions_num, dim, sp, sa, sspd):
     while True:
         epoch += 1
         fitness_array, waypoints_array = fitness_calculation(population)
-        if False or epoch % 10 == 1:
+        if plot_inter_results and epoch % 10 == 1:
             display_running(waypoints_array, line_in, line_out, str(epoch))
         if max([len(path) for path in waypoints_array]) > 100:
             test, index, point = termination(waypoints_array, sp)
@@ -133,7 +130,7 @@ def main_loop(actions_num, dim, sp, sa, sspd):
         population = copy.deepcopy(mutation(population))
 
 
-max_actions = 400
+max_actions = 300
 population_dim = 40
 starting_point = center_line[0]
 sol, ep = main_loop(max_actions, population_dim, starting_point, starting_angle, Car.min_spd)

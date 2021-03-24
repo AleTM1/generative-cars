@@ -1,7 +1,6 @@
 import numpy as np
 
-STARTING_ANGLE_LIST = {"Mexico_track": 180, "Bowtie_track": 330, "canada_race": 240, "Canada_Training": 160,
-                       "London_Loop_Train": 350, "New_York_Track": 5, "Oval_Track": 0}
+STARTING_ANGLE_LIST = {"Mexico_track": 180, "Bowtie_track": 30, "canada_race": 90}
 
 
 # sector = [x0, x1, y0, y1]
