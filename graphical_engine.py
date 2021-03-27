@@ -8,11 +8,11 @@ def extract_solution_features(solution):
     x = []
     y = []
     colors = []
-    for (waypoints, car) in solution:
-        for i in range(len(waypoints)):
-            x.append(waypoints[i, 0])
-            y.append(waypoints[i, 1])
-            colors.append(car.abs_actions[i, 0])
+    (waypoints, car) = solution
+    for i in range(len(waypoints)):
+        x.append(waypoints[i, 0])
+        y.append(waypoints[i, 1])
+        colors.append(car.abs_actions[i, 0])
     return x, y, colors
 
 
@@ -23,11 +23,7 @@ def display_running(waypoints_array, line_in, line_out, epoch):
     def print_frame():
         def plot_border(ob, col):
             x, y = ob.xy
-            ax.plot(x, y, color=col, alpha=0.9, linewidth=3, solid_capstyle='round', zorder=2)
-
-        def plot_sectors(segments_coords, col):
-            for segment in segments_coords:
-                ax.plot(segment[:2], segment[2:4], color=col, alpha=0.7, linewidth=3, solid_capstyle='round', zorder=2)
+            ax.plot(x, y, color=col, alpha=1, linewidth=3, solid_capstyle='round', zorder=2)
 
         def plot_raceline():
             x = []
@@ -56,17 +52,12 @@ def display_ending(solution, line_in, line_out, epoch):
             x, y = ob.xy
             ax.plot(x, y, color=col, alpha=0.7, linewidth=3, solid_capstyle='round', zorder=2)
 
-        def plot_sectors(segments_coords):
-            c = 1
-            for seg in segments_coords:
-                if c == len(segments_coords):
-                    ax.plot(seg[:2], seg[2:4], color='green', alpha=0.7, linewidth=3, solid_capstyle='round', zorder=2)
-                else:
-                    ax.plot(seg[:2], seg[2:4], color='white', alpha=0.7, linewidth=3, solid_capstyle='round', zorder=2)
-                c += 1
+        def plot_start(x0, y0, col):
+            ax.scatter(x0, y0, color=col, alpha=1, linewidth=35, marker='o')
 
         def plot_raceline():
             x, y, colors = extract_solution_features(solution)
+            plot_start(x[0], y[0], "green")
             col = np.subtract(1, np.subtract(np.array(colors), Car.min_spd) / Car.max_spd)
             ax.scatter(x, y, marker='.', s=50, linewidths=4, c=col, cmap=mcm.RdYlBu, zorder=4)
 

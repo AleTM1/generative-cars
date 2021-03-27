@@ -15,8 +15,8 @@ ALLOWED TRACKS:
 - canada_race (x100)
 """
 
-plot_inter_results = False
-track = "Bowtie_track"
+plot_inter_results = True
+track = "Mexico_track"
 
 center_line, outer_border, inner_border, starting_angle = load_track(track)
 line_in = shapely.geometry.polygon.LineString(inner_border)
@@ -26,7 +26,7 @@ outer_poly = Polygon(line_out)
 
 
 def fitness_calculation(car_array):
-    PROGRESS_BONUS = 10
+    PROGRESS_BONUS = 10     # Larger the value, smaller the speed bonus
     waypoints_array = []
     fitness_array = []
     for c in car_array:
@@ -59,7 +59,7 @@ def selection(fitness_array):
 
 
 def crossover(best, dim, best_fitness):
-    def heuristic_choice(num_choices):
+    def heuristic_choice(num_choices):  # Better solutions have better chance to be chosen as parents
         best_exemplars = []
         best_values_copy = copy.deepcopy(best_fitness)
         for _ in range(num_choices):
@@ -75,29 +75,30 @@ def crossover(best, dim, best_fitness):
             best_exemplars = [best_exemplars[1], best_exemplars[0]]     # parent 0 is better than parent 1
         return best_exemplars
 
-    population = best
+    population = best   # Parents are kept in the new generation
     while len(population) < dim:
         parents = heuristic_choice(2)
         new_car = copy.deepcopy(parents[0])
-        part = int((random.random() * 0.5 + 0.25) * (new_car.tick - 1)) + 1  # crossover between 25% and 75%
+        threshold = (random.random() * 0.5 + 0.25)  # Crossover probability for each gene between .25 and .75
         for i in range(len(new_car.rel_actions)):
-            if i < part:
+            if random.random() < threshold:
                 new_car.rel_actions[i] = copy.deepcopy(parents[1].rel_actions[i])
         new_car.update_abs_actions()
         population.append(new_car)
     return population
 
 
+#   Mutations are concentrated around the crash site (happend at p.tick)
 def mutation(population):
     for p in population:
-        p.mute_rel_actions(p.tick - 10, p.tick + 10)
+        p.mute_rel_actions(p.tick - 4 - int(random.random() * 5), p.tick + 4 + int(random.random() * 5))
     return population
 
 
 def termination(waypoints_array, ending_point):
     end_point = Point(ending_point[0], ending_point[1])
     for i in range(len(waypoints_array)):
-        if len(waypoints_array[i]) > 50:
+        if len(waypoints_array[i]) > 100:
             for p in range(int(len(waypoints_array[i])/2), len(waypoints_array[i]) - 1):
                 point2 = Point(waypoints_array[i][p])
                 if point2.distance(end_point) < 15:
@@ -110,7 +111,6 @@ def main_loop(actions_num, dim, sp, sa, sspd):
         return [Car(actions_num - 1, inner_poly, outer_poly, start_p, ang, start_spd) for _ in range(dim)]
 
     population = init_population(sp, sa, sspd)
-    solution = []
     epoch = 0
     while True:
         epoch += 1
@@ -121,13 +121,13 @@ def main_loop(actions_num, dim, sp, sa, sspd):
             test, index, point = termination(waypoints_array, sp)
             if test:
                 best_car = population[index]
-                solution.append([copy.deepcopy(waypoints_array[index][:point]), copy.deepcopy(best_car)])
+                solution = [copy.deepcopy(waypoints_array[index][:point]), copy.deepcopy(best_car)]
                 return solution, epoch
         selection_arr = selection(fitness_array)
         best = [population[i] for i in selection_arr]
         best_fitness = [fitness_array[i] for i in selection_arr]
-        population = copy.deepcopy(crossover(best, dim, best_fitness))
-        population = copy.deepcopy(mutation(population))
+        population = crossover(best, dim, best_fitness)
+        population = mutation(population)
 
 
 max_actions = 300
