@@ -9,9 +9,9 @@ def rndclosestspeed(spd, min_spd, max_spd):
     a = -3
     b = +3
     if spd < min_spd:
-        a = - (spd - min_spd - 2)
+        a = - (spd - min_spd - 3)
     elif spd > max_spd:
-        b = max_spd + 2 - spd
+        b = max_spd + 3 - spd
     n_spd = random.random()*(b - a) + a
     return n_spd
 
@@ -29,18 +29,18 @@ def rndclosestangle(ang, min_ang, max_ang):
 
 class Car:
 
-    max_spd = 15
+    max_spd = 18
     min_spd = 4
     max_ang = 35
     min_ang = -35
 
-    def __init__(self, num_act, poly_in, poly_out, starting_point, starting_angle, starting_speed):
-        self.line_in = poly_in
-        self.line_out = poly_out
+    def __init__(self, num_act, poly_in, poly_out, starting_point, starting_angle):
+        self.poly_in = poly_in
+        self.poly_out = poly_out
         self.starting_pos = starting_point
         self.pos = starting_point
         self.starting_ang = starting_angle
-        self.starting_speed = starting_speed
+        self.starting_speed = Car.min_spd
         self.angle = starting_angle
         self.tick = 0
         self.abs_actions = []
@@ -66,6 +66,8 @@ class Car:
         self.update_abs_actions()
 
     def mute_rel_actions(self, start, end):
+        if start < 1:
+            start = 0
         spd = self.abs_actions[start - 1, 0]
         ang = self.abs_actions[start - 1, 1]
         for i in range(start, end):
@@ -93,7 +95,7 @@ class Car:
         for a in self.abs_actions:
             self.update_position(a)
             point = Point(self.pos[0], self.pos[1])
-            if self.line_in.contains(point) or not self.line_out.contains(point):
+            if self.poly_in.contains(point) or not self.poly_out.contains(point):
                 break
             self.tick += 1
             waypoints.append(copy.deepcopy(self.pos))
