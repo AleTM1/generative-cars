@@ -52,7 +52,7 @@ def display_ending(solution, line_in, line_out, generation):
 
     def plot_raceline():
         x, y, colors = extract_solution_features(solution)
-        ax.scatter(x[0], y[0], color='green', alpha=1, linewidth=35, marker='o')
+        ax.scatter(x[0], y[0], color='green', alpha=1, linewidth=45, marker='o')
         col = np.subtract(1, np.array(colors) / Car.max_spd)  # normalize colors
         ax.scatter(x, y, marker='.', s=50, linewidths=4, c=col, cmap=mcm.RdYlBu, zorder=4)
 

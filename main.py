@@ -27,7 +27,7 @@ outer_poly = Polygon(line_out)
 
 
 def fitness_calculation(car_array):
-    PROGRESS_BONUS = 5     # Larger the value, smaller the speed bonus
+    PROGRESS_BONUS = 8     # Larger the value, smaller the speed bonus
     waypoints_array = []
     fitness_array = []
     for c in car_array:  # Each exemplar is actually tested and evaluated according to its progress
@@ -104,7 +104,7 @@ def termination(waypoints_array, ending_point):
         if len(waypoints_array[i]) > 100:   # check only path which are long enough
             for p in range(int(len(waypoints_array[i])/2), len(waypoints_array[i]) - 1):
                 point2 = Point(waypoints_array[i][p])
-                if point2.distance(end_point) < 15:  # check if at least one point is close to the ending point
+                if point2.distance(end_point) < 25:  # check if at least one point is close to the ending point
                     return True, i, p + 1   # return individual's index and its last useful path point
     return False, -1, -1
 
@@ -131,7 +131,7 @@ def main_loop(actions_num, dim, sp, sa):
 
 
 max_actions = 300   # chromosome lenght
-population_dim = 40     # number of individuals for each generation
+population_dim = 50     # number of individuals for each generation
 sol, gen = main_loop(max_actions, population_dim, starting_point, starting_angle)
 
 display_ending(sol, line_in, line_out, gen)
