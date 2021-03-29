@@ -9,6 +9,7 @@ def extract_solution_features(solution):
     y = []
     colors = []
     (waypoints, car) = solution
+    print(len(waypoints))
     for i in range(len(waypoints)):
         x.append(waypoints[i, 0])
         y.append(waypoints[i, 1])

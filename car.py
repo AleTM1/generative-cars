@@ -8,8 +8,8 @@ import copy
 class Car:
 
     # global parameter of Car
-    max_spd = 18
-    min_spd = 4
+    max_spd = 20
+    min_spd = 5
     max_ang = 35
     min_ang = -35
 
@@ -21,8 +21,8 @@ class Car:
         self.starting_ang = starting_angle
         self.angle = starting_angle
         self.tick = 0
-        self.abs_actions = []
-        self.rel_actions = []
+        self.abs_actions = np.array([]) # Array of couples [absolute_speed, steering_angle]
+        self.rel_actions = []   # Array of couples [delta_speed, delta_angle]
         self.actions_generator(num_act)  # Creating a new chromosome
         
     def actions_generator(self, num_act):
@@ -30,8 +30,8 @@ class Car:
         ang = 0
         rel_actions = []
         for i in range(num_act):
-            delta_spd = self.rndclosestspeed(spd)
-            delta_ang = self.rndclosestangle(ang)
+            delta_spd = self.rnd_delta_speed(spd)
+            delta_ang = self.rnd_delta_angle(ang)
             spd += delta_spd
             ang += delta_ang
             rel_actions.append([delta_spd, delta_ang])
@@ -39,19 +39,20 @@ class Car:
         self.update_abs_actions()
 
     def mute_rel_actions(self, start, end):
-        if start < 1:
-            start = 0
+        if start < 5:
+            start = 5
         spd = self.abs_actions[start - 1, 0]
         ang = self.abs_actions[start - 1, 1]
         for i in range(start, end):
-            delta_spd = self.rndclosestspeed(spd)
-            delta_ang = self.rndclosestangle(ang)
+            delta_spd = self.rnd_delta_speed(spd)
+            delta_ang = self.rnd_delta_angle(ang)
             spd += delta_spd
             ang += delta_ang
             self.rel_actions[i][0] = copy.deepcopy(delta_spd)
             self.rel_actions[i][1] = copy.deepcopy(delta_ang)
         self.update_abs_actions()
 
+    # In order to obtain the action (speed and steering angle) for every instant, it's computed a sum over the deltas
     def update_abs_actions(self):
         abs_actions = [[Car.min_spd, 0]]
         for i in range(0, len(self.rel_actions)):
@@ -79,22 +80,22 @@ class Car:
         self.pos[0] += action[0] * cos(radians(self.angle))
         self.pos[1] += action[0] * sin(radians(self.angle))
 
-    def rndclosestspeed(self, spd):
+    def rnd_delta_speed(self, spd):
         a = -3
         b = +3
-        if spd < self.min_spd:
-            a = - (spd - self.min_spd - 3)
-        elif spd > self.max_spd:
-            b = self.max_spd + 3 - spd
+        if spd + a < self.min_spd:
+            a = spd - self.min_spd
+        elif spd + b > self.max_spd:
+            b = self.max_spd - spd
         n_spd = random.random()*(b - a) + a
-        return n_spd
+        return n_spd    # n_spd will be between (spd-3) & (spd+3) and between the min and max Car allowed speeds
 
-    def rndclosestangle(self, ang):
-        a = -2
-        b = +2
-        if ang < self.min_ang:
-            a = self.min_ang - 2 - ang
-        elif ang > self.max_ang:
-            b = self.max_ang + 2 - ang
+    def rnd_delta_angle(self, ang):
+        a = -3
+        b = +3
+        if ang + a < self.min_ang:
+            a = ang - self.min_ang
+        elif ang + b > self.max_ang:
+            b = self.max_ang - ang
         n_ang = random.random()*(b - a) + a
-        return n_ang
+        return n_ang   # n_ang will be between (ang-3) & (ang+3) and between the min and max Car allowed steering angle

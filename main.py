@@ -9,14 +9,14 @@ import numpy as np
 
 
 """
-ALLOWED TRACKS:
+AVAIBLES TRACKS:
 - Mexico_track (x100) 
-- Bowtie_track (x100)
 - canada_race (x100)
+- Bowtie_track (x100)
 """
 
 plot_inter_results = True
-track = "Mexico_track"
+track = "Bowtie_track"
 
 center_line, outer_border, inner_border, starting_angle = load_track(track)
 starting_point = center_line[0]
@@ -27,7 +27,7 @@ outer_poly = Polygon(line_out)
 
 
 def fitness_calculation(car_array):
-    PROGRESS_BONUS = 8     # Larger the value, smaller the speed bonus
+    PROGRESS_BONUS = 10     # Larger the value, smaller the speed bonus
     waypoints_array = []
     fitness_array = []
     for c in car_array:  # Each exemplar is actually tested and evaluated according to its progress
@@ -111,11 +111,12 @@ def termination(waypoints_array, ending_point):
 
 def main_loop(actions_num, dim, sp, sa):
     population = [Car(actions_num - 1, inner_poly, outer_poly, sp, sa) for _ in range(dim)]  # initialize population
+
     generation = 0
     while True:
         generation += 1
         fitness_array, waypoints_array = fitness_calculation(population)
-        if plot_inter_results and generation % 10 == 1:
+        if plot_inter_results and generation % 5 == 1:
             display_running(waypoints_array, line_in, line_out, str(generation))
         if max([len(path) for path in waypoints_array]) > 100:
             test, index, point = termination(waypoints_array, sp)
@@ -123,15 +124,15 @@ def main_loop(actions_num, dim, sp, sa):
                 best_car = population[index]
                 solution = [waypoints_array[index][:point], best_car]
                 return solution, generation
-        selection_arr = selection(fitness_array)
-        best = [population[i] for i in selection_arr]
-        best_fitness = [fitness_array[i] for i in selection_arr]
+        fittest_individuals_indexes = selection(fitness_array)
+        best = [population[i] for i in fittest_individuals_indexes] # extracting best individuals given the indexes
+        best_fitness = [fitness_array[i] for i in fittest_individuals_indexes] # extracting correlated fitness values
         population = crossover(best, dim, best_fitness)
         population = mutation(population)
 
 
-max_actions = 300   # chromosome lenght
-population_dim = 50     # number of individuals for each generation
+max_actions = 200   # chromosome lenght
+population_dim = 70     # number of individuals for each generation
 sol, gen = main_loop(max_actions, population_dim, starting_point, starting_angle)
 
 display_ending(sol, line_in, line_out, gen)
