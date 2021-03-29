@@ -46,7 +46,7 @@ class Car:
         self.abs_actions = []
         self.rel_actions = []
         self.actions_generator(0, num_act)
-
+        
     def actions_generator(self, start, num_act):
         if start == 0:
             spd = copy.deepcopy(self.starting_speed)
