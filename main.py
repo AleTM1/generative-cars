@@ -9,7 +9,7 @@ import numpy as np
 
 
 """
-AVAIBLES TRACKS:
+AVALIBLES TRACKS:
 - Mexico_track (x100) 
 - canada_race (x100)
 - Bowtie_track (x100)

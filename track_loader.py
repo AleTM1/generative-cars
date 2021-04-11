@@ -3,8 +3,7 @@ import numpy as np
 STARTING_ANGLE_LIST = {"Mexico_track": 180, "Bowtie_track": 30, "canada_race": 90}
 
 
-# sector = [x0, x1, y0, y1]
-# return np.outer, np.inner, sectors, starting_angle
+# return np.center, np.outer, np.inner, starting_angle
 def load_track(name):
     TRACK_NAME = name
     points = np.load("./tracks/%s.npy" % TRACK_NAME)
