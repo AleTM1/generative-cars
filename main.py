@@ -9,14 +9,14 @@ import numpy as np
 
 
 """
-AVALIBLES TRACKS:
+AVAILABLES TRACKS:
 - Mexico_track (x100) 
 - canada_race (x100)
 - Bowtie_track (x100)
 """
 
 plot_inter_results = True
-track = "Bowtie_track"
+track = "Mexico_track"
 
 center_line, outer_border, inner_border, starting_angle = load_track(track)
 starting_point = center_line[0]

@@ -60,4 +60,4 @@ def display_ending(solution, line_in, line_out, generation):
     plot_raceline()
     plt.title("Total generation needed: " + str(generation))
     plt.show()
-    # fig.savefig('saves/' + generation + '_complete.png')
+    # fig.savefig('saves/' + str(generation) + '_complete.png')
